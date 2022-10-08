@@ -1,0 +1,13 @@
+{
+  "id" : 14,
+  "firstName" : "Ahmed",
+  "lastName" : "AbuFeky",
+  "active" : true,
+  "address" : {
+    "street" : "100 Main St",
+    "city" : "MNF",
+    "state" : "Berket ElSabaa",
+    "country" : "EGY"
+  },
+  "language" : ["Java", "C#", "C++", "JavaScript"]
+}
