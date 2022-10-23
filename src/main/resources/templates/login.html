@@ -30,11 +30,11 @@
 					and password.</div>
 				<div class="bg-danger" th:if="${param.logout}">You have been
 					logged out.</div>
-				<form th:action="@{/login}" class="form-signin" method="post" role="form">
+				<form th:action="@{/loginPage}" class="form-signin" method="post" role="form">
 					<input type="text" class="form-control user" placeholder="Username" name="username" id="username" required="required"
 						autofocus="autofocus">
 					<input type="password" class="form-control" placeholder="Password" name="password" id="password" required="required">
-					<input class="btn btn-lg btn-primary btn-block" type="submit" name="Sign In" value="Login">
+					<input class="btn btn-lg btn-primary btn-block" type="submit" name="Sign In" value="loginPage">
 					<hr>
 				</form>
 			</div>

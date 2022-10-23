@@ -58,4 +58,9 @@ public class UserController {
         usersServices.removeUser(userId);
         return "Deleted ID - " + userId;
     }
+
+    @GetMapping ("/access_denied")
+    public String errorLogin(){
+        return "access_denied";
+    }
 }
