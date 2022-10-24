@@ -1,5 +1,6 @@
-package com.restdemo.config;
+package com.restdemo.securityConfig;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,13 +8,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 
+import javax.sql.DataSource;
+
 @Configuration
 @EnableWebSecurity
 public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private DataSource dataSource;
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         //add users for inMemory authentication
         User.UserBuilder users = User.withDefaultPasswordEncoder();
+
+//        auth.jdbcAuthentication().dataSource(dataSource);
 
         auth.inMemoryAuthentication()
                 .withUser(users.username("feky").password("feky").roles("NORMAL_USER"))

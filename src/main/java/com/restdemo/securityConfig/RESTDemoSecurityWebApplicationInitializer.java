@@ -1,4 +1,4 @@
-package com.restdemo.config;
+package com.restdemo.securityConfig;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 
