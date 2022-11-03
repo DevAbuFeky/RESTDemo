@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class LoginController {
 
-    @GetMapping("/loginPage")
-    public String loginPage(){
+    @GetMapping("/login")
+    public String login(){
         return "login";
     }
 }
