@@ -1,51 +1,21 @@
 package com.restdemo.securityConfig;
 
-import com.restdemo.securityConfig.principal.UserPrincipalDetailsService;
-import org.springframework.context.annotation.Bean;
+import com.restdemo.services.UserSecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
-    private UserPrincipalDetailsService userPrincipalDetailsService;
-    public RESTDemoSecurityConfig(UserPrincipalDetailsService userPrincipalDetailsService) {
-        this.userPrincipalDetailsService = userPrincipalDetailsService;
-    }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        //add users for inMemory authentication
-//        User.UserBuilder users = User.withDefaultPasswordEncoder();
-
-//        auth.inMemoryAuthentication()
-//                .withUser(users.username("feky").password("feky").roles("NORMAL_USER"))
-//                .withUser(users.username("fekyAdmin").password("fekyAdmin").roles("NORMAL_USER","ADMIN"))
-//                .withUser(users.username("fekyManager").password("fekyManager").roles("NORMAL_USER","MANAGER"));
-
-        auth.authenticationProvider(authenticationProvider());
-    }
-
-//    private static final String[] PUBLIC_MATCHERS = {
-//            "/css/**",
-//            "/js/**",
-//            "/image/**",
-//            "/",
-//            "/newUser",
-//            "/forgetPassword",
-//            "/login",
-//            "/fonts/**",
-//            "/images/**",
-//            "/fontawesome/**"
-//    };
+    @Autowired
+    private UserSecurityService userSecurityService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -55,30 +25,29 @@ public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/index.html").permitAll()
                 .antMatchers("/profile/**").authenticated()
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/management/**").hasAnyRole("ADMIN","MANAGER")
+                .antMatchers("/management/**").hasAnyRole("ADMIN", "MANAGER")
                 .antMatchers("/api/users").hasRole("ADMIN")
                 .and()
                 .formLogin()
+                .loginProcessingUrl("/signin")
                 .loginPage("/login").permitAll()
+                .usernameParameter("txtUsername")
+                .passwordParameter("txtPassword")
                 .and()
-                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login");
+                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login")
+                .and()
+                .rememberMe().tokenValiditySeconds(2592000).key("mySecret!").rememberMeParameter("checkRememberMe");
 
-//        http.authorizeRequests().
-//                antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
     }
 
-    @Bean
-    DaoAuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        daoAuthenticationProvider.setUserDetailsService(this.userPrincipalDetailsService);
-
-        return daoAuthenticationProvider;
+    private BCryptPasswordEncoder passwordEncoder() {
+        return SecurityUtility.passwordEncoder();
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+    @Autowired
+    public void ConfigureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userSecurityService).passwordEncoder(passwordEncoder());
     }
+
 
 }

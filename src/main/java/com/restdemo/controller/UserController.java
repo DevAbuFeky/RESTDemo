@@ -36,14 +36,14 @@ public class UserController {
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user){
-        user.setId(0);
-        usersServices.addUser(user);
+        user.setId(0L);
+        usersServices.save(user);
         return user;
     }
 
     @PutMapping("/users")
     public User updateUser(@RequestBody User user){
-        usersServices.addUser(user);
+        usersServices.save(user);
         return user;
     }
 

@@ -1,15 +1,17 @@
 package com.restdemo.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-//@RestController
 @RequestMapping("/")
 public class HomeController {
-
-    @GetMapping({"/","/index"})
+    @GetMapping("index")
     public String index(){
         return "index";
     }
+
+    @GetMapping("login")
+    public String login(){return "login";}
 }

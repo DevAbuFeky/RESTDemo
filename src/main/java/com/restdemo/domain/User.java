@@ -1,73 +1,68 @@
 package com.restdemo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.restdemo.domain.security.Authority;
+import com.restdemo.domain.security.UserRole;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "users")
-public class User {
+@Table(name = "user")
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-//    @Column(nullable = false, updatable = false)
-    private long id;
-
-//    @Column(name = "first_name")
-//    private String firstName;
-//    @Column(name = "last_name")
-//    private String lastName;
-
-    @Column(nullable = false)
-    private String userName;
-
-//    @Column(name = "email", nullable = false)
-//    private String email;
-
-    @Column(nullable = false)
+    @Column(name = "id", nullable = false, updatable = false)
+    private Long id;
+    private String username;
     private String password;
+    private String firstName;
+    private String lastName;
 
-    private int active;
+    @Column(name = "email", nullable = false, updatable = false)
+    private String email;
+    private String phone;
+    private boolean enabled = true;
 
-    private String roles = "";
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<UserRole> userRole = new HashSet<>();
 
-    private String permissions = "";
-
-    public User(String userName, String password, String roles, String permissions) {
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-        this.userName = userName;
-//        this.email = email;
-        this.password = password;
-        this.roles = roles = "";
-        this.permissions = permissions = "";
-        this.active = 1;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        userRole.forEach(ur -> authorities.add(new Authority(ur.getRole().getName())));
+        return null;
     }
 
-    protected User(){}
-
-    public int getActive() {
-        return active;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public List<String> getRoleList(){
-        if(this.roles.length() > 0){
-            return Arrays.asList(this.roles.split(","));
-        }
-        return new ArrayList<>();
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
 
-    public List<String> getPermissionList(){
-        if(this.permissions.length() > 0){
-            return Arrays.asList(this.permissions.split(","));
-        }
-        return new ArrayList<>();
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled(){
+        return enabled;
     }
 
 }
+

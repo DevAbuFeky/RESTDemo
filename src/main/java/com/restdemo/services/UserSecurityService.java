@@ -1,26 +1,27 @@
-package com.restdemo.securityConfig.principal;
+package com.restdemo.services;
 
 import com.restdemo.domain.User;
 import com.restdemo.repo.UsersRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserPrincipalDetailsService implements UserDetailsService {
-    private UsersRepo usersRepo;
+public class UserSecurityService implements UserDetailsService {
 
-    public UserPrincipalDetailsService(UsersRepo usersRepo){
-        this.usersRepo = usersRepo;
-    }
+    @Autowired
+    private UsersRepo usersRepo;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = usersRepo.findByUsername(username);
 
-        User user = this.usersRepo.findByUserName(username);
-        UserPrincipal userPrincipal = new UserPrincipal(user);
+        if(null == user) {
+            throw new UsernameNotFoundException("Username not found");
+        }
 
-        return userPrincipal;
+        return user;
     }
 }
