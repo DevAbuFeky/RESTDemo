@@ -4,8 +4,27 @@
 <body>
 <header th:insert="fragments.html :: nav"></header>
 <!-- Page content goes here -->
-<div class="container">
-    <p>This is Management\Index. Only people with role_management can see this</p>
+<div class="wrapper">
+    <header th:insert="fragments.html :: nav"></header>
+    <!-- Content -->
+    <div id="content">
+        <!-- sidebar btn -->
+        <nav class="navbar navbar-expend-lg navbar-light bg-light">
+            <div class="container-fluid row">
+                <button type="button" id="sidebarCollapse" class="btn btn-info">
+                    <i class="fa fa-align-left"></i>
+                </button>
+                <a th:href="@{~/profile/index}" type="button" id="sidebarCollapse" class="btn btn-info">
+                    <i class="fa fa-user"></i>
+                </a>
+            </div>
+        </nav>
+        <br><br>
+        <!-- Content -->
+        <h2>Management Content</h2>
+        <p>Management Content</p>
+    </div>
 </div>
+<div th:insert="fragments.html :: script"></div>
 </body>
 </html>

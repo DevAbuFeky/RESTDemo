@@ -37,7 +37,6 @@ public class RestDemoApplication implements CommandLineRunner {
         role1.setName("ROLE_ADMIN");
         userRoles.add(new UserRole(user1, role1));
 
-        usersServices.createUser(user1, userRoles);
+        usersServices.createUser(user1,userRoles);
     }
-
 }

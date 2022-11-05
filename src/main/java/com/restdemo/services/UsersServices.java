@@ -2,7 +2,9 @@ package com.restdemo.services;
 
 
 import com.restdemo.domain.User;
+import com.restdemo.domain.security.PasswordResetToken;
 import com.restdemo.domain.security.UserRole;
+import com.restdemo.repo.PasswordResetTokenRepository;
 import com.restdemo.repo.RoleRepository;
 import com.restdemo.repo.UsersRepo;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,10 @@ public class UsersServices {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
 
     private static final Logger LOG = LoggerFactory.getLogger(UsersServices.class);
 
@@ -37,14 +44,28 @@ public class UsersServices {
 
 
     public void removeUser(int id){
-        usersRepo.deleteById(id);
+        usersRepo.deleteById(Math.toIntExact(id));
     }
 
-    public Optional<User> getUserById(int id){
+    public Optional<User> findById(int id) {
         return usersRepo.findById(id);
     }
 
-    public User createUser(User user, Set<UserRole> userRoles) throws Exception{
+    public User findByUsername(String username){
+        return usersRepo.findByUsername(username);
+    }
+
+    public User findByEmail(String email){
+        return usersRepo.findByEmail(email);
+    }
+
+
+    public PasswordResetToken getPasswordResetToken(final String token){
+        return passwordResetTokenRepository.findByToken(token);
+    }
+
+    @Transactional
+    public User createUser(User user, Set<UserRole> userRoles) {
         User localUser = usersRepo.findByUsername(user.getUsername());
 
         if(localUser != null) {
@@ -62,6 +83,11 @@ public class UsersServices {
         return localUser;
     }
 
+    public void createPasswordResetTokenForUser(final User user, final String token){
+        final PasswordResetToken myToken = new PasswordResetToken(token, user);
+        passwordResetTokenRepository.save(myToken);
+    }
+
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = usersRepo.findByUsername(username);
 
@@ -71,6 +97,5 @@ public class UsersServices {
 
         return user;
     }
-
 
 }

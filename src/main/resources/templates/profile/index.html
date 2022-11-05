@@ -1,23 +1,75 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
+<html xmlns:th="http://www.thymeleaf.org">
 <head th:insert="fragments.html :: headerfiles"></head>
 <body>
-<header th:insert="fragments.html :: nav"></header>
-<!-- Page content goes here -->
-<div class="container">
-    <p>This is User Profile\Index. Only authenticated people can see this</p>
-    <table>
-        <tr>
-            <td>Username</td>
-            <td><span sec:authentication="name"></span></td>
-        </tr>
-        <tr>
-            <td>Authorities</td>
-            <td><span sec:authentication="principal.authorities"></span></td>
-        </tr>
-    </table>
+<div class="wrapper">
+    <div th:insert="fragments.html :: nav"></div>
+    <!-- Content -->
+    <div id="content">
+        <!-- sidebar btn -->
+        <nav class="navbar navbar-expend-lg navbar-light bg-light">
+            <div class="container-fluid row">
+                <button type="button" id="sidebarCollapse" class="btn btn-info">
+                    <i class="fa fa-align-left"></i>
+                </button>
+                <a th:href="@{~/profile/index}" type="button" id="sidebarCollapse" class="btn btn-info">
+                    <i class="fa fa-user"></i>
+                </a>
+            </div>
+        </nav>
+        <br><br>
+        <!-- Content -->
+        <div class="col-lg-10">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Full Name</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">Johnatan Smith</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Email</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">example@example.com</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Phone</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">(097) 234-5678</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Mobile</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">(098) 765-4321</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Address</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
 </div>
+<div th:insert="fragments.html :: script"></div>
 </body>
 </html>
