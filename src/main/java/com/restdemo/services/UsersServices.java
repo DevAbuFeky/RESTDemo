@@ -38,6 +38,10 @@ public class UsersServices {
        return usersRepo.findAll();
     }
 
+    public User addUser(User user){
+        return usersRepo.save(user);
+    }
+
     public User save(User user){
         return usersRepo.save(user);
     }

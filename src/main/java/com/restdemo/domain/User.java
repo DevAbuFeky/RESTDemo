@@ -31,7 +31,7 @@ public class User implements UserDetails {
     @Column(name = "email", nullable = false, updatable = false)
     private String email;
     private String phone;
-    private boolean enabled = true;
+    private boolean active = true;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
@@ -61,7 +61,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled(){
-        return enabled;
+        return active;
     }
 
 }

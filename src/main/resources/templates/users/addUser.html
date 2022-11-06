@@ -26,25 +26,25 @@
         <!-- Modal -->
         <div class="container">
             <div class="header-panel">
-                <h5 class="title" style="text-align: center;">ِAdd new Implants</h5>
+                <h5 class="title" style="text-align: center;">ِAdd/Update User</h5>
             </div>
             <br><br>
-<!--            <form th:action="@{/users/addUser}" method="post" th:object="${users}">-->
+            <form th:action="@{/users/addUser}" method="post" th:object="${users}">
             <form>
-<!--                <input type="hidden" name="id"  th:field="*{id}">-->
+                <input type="hidden" name="id"  th:field="*{id}">
                 <div class="form-group">
                     <div class="row">
                         <div class="col">
                             <label>Code</label>
                             <input type="text" class="form-control" required
-                                   name="code" id="code" placeholder="Code">
-<!--                                   th:field="*{code}">-->
+                                   name="firstName" id="firstName" placeholder="firstName"
+                                   th:field="*{firstName}">
                         </div>
                         <div class="col">
                             <label>Name</label>
                             <input type="text" class="form-control" required
-                                   name="name" id="name" placeholder="Name">
-<!--                                   th:field="*{name}">-->
+                                   name="email" id="email" placeholder="email"
+                                   th:field="*{email}">
                         </div>
                     </div>
                 </div>

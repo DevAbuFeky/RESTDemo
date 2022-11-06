@@ -26,7 +26,7 @@ public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/profile/**").authenticated()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/management/**").hasAnyRole("ADMIN", "MANAGER")
-                .antMatchers("/api/users").hasRole("ADMIN")
+                .antMatchers("/users/**").authenticated()
                 .and()
                 .formLogin()
                 .loginProcessingUrl("/signin")

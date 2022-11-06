@@ -30,24 +30,24 @@
         <thead>
         <tr>
           <th style="width: 30px">#</th>
-          <th>Code</th>
-          <th>Name</th>
+          <th>First Name</th>
+          <th>Email</th>
           <!--                        <th>Description</th>-->
           <th></th>
           <th></th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="user, iStat : ${user}">
-          <td name="id" th:text="${user.id}"></td>
-          <td name="id" th:text="${user.code}"></td>
-          <td th:text="${user.name}"></td>
+        <tr th:each="users, iStat : ${userList}">
+          <td name="id" th:text="${users.id}"></td>
+          <td name="id" th:text="${users.firstName}"></td>
+          <td th:text="${users.email}"></td>
           <!--                        <td th:text="${implants.description}"></td>-->
           <td style="width: 50px;">
-            <a href="" th:href="@{/users/delete/{id}(id=${user.id})}"  class="btn btn-danger"><span class="fas fa-trash-alt"></span></a>
+            <a href="" th:href="@{/users/delete/{id}(id=${users.id})}"  class="btn btn-danger"><span class="fas fa-trash-alt"></span></a>
           </td>
           <td style="width: 50px;">
-            <a href="" th:href="@{/users/update/{id}(id=${user.id})}"  class="btn btn-secondary"><span class="fas fa-edit"></span></a>
+            <a href="" th:href="@{/users/update/{id}(id=${users.id})}"  class="btn btn-secondary"><span class="fas fa-edit"></span></a>
           </td>
         </tr>
         </tbody>
