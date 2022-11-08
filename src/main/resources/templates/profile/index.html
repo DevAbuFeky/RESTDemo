@@ -17,72 +17,113 @@
                 </a>
             </div>
         </nav>
-        <br><br>
+<!--        <h2 class="section-headline">-->
+<!--            <span th:text="${#strings.toUpperCase(user.firstName)}"></span>-->
+<!--        </h2>-->
+
         <!-- Content -->
-        <div class="col-lg-10">
-            <div class="card mb-4">
+<!--        <ul class="nav nav-tabs">-->
+<!--            <li th:classappend="${classActiveEdit}? 'active'"><a-->
+<!--                    href="#tab-1" data-toggle="tab"><span style="color: red;">Edit</span></a></li>-->
+<!--        </ul>-->
 
-                <div class="alert alert-danger" th:if="${incorrectPassword}">
-                    <strong>Incorrect Password!</strong> Pleae enter the correct
-                    password for the current user.
-                </div>
+            <!-- Edit user information -->
+            <div class="container"
+                 th:classappend="${classActiveEdit}? 'in active'">
+                <h4 class="mb-3">User Info</h4>
+                <div class="form-group">
+                    <div class="alert alert-danger" th:if="${incorrectPassword}">
+                        <strong>Incorrect Password!</strong> Pleae enter the correct
+                        password for the current user.
+                    </div>
 
-                <div class="alert alert-succss" th:if="${updateSuccess}">
-                    <strong>Update Success!</strong>
-                </div>
-                <div class="card-body" th:classappend="${classActiveEdit}? 'in active'">
-                    <form th:action="@{/profile/updateUserInfo}" method="post">
+                    <div class="alert alert-success" th:if="${updateSuccess}">
+                        <strong>Update Success!</strong>
+                    </div>
+
+                    <form class="needs-validation" th:action="@{/profile/updateUserInfo}" method="post">
                         <input type="hidden" name="id" th:value="${user.id}" />
+
+                        <div class="bg-info" th:if="${updateUserInfo}">User info
+                            updated.</div>
+
                         <div class="row">
-                            <div class="col-sm-3">
-                                <label class="mb-0" for="firstName">Full Name</label>
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName">First name</label>
+                                <input type="text" class="form-control" id="firstName"
+                                       name="firstName" th:value="${user.firstName}" required>
+                                <div class="invalid-feedback">
+                                    Valid first name is required.
+                                </div>
                             </div>
-                            <div class="col-sm-9">
-                                <p type="text" class="form-control" id="firstName"
-                                   name="firstName" th:value="${user.firstName}"></p>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName">Last name</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName"
+                                       th:value="${user.lastName}" required>
+                                <div class="invalid-feedback">
+                                    Valid last name is required.
+                                </div>
                             </div>
                         </div>
-                        <hr>
                         <div class="row">
-                            <div class="col-sm-3">
-                                <p class="mb-0">Email</p>
+                            <div class="col-md-6 mb-3">
+                                <label for="username">Username</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">@</span>
+                                    </div>
+                                    <input type="text" class="form-control"  id="userName" name="username"
+                                           th:value="${user.username}" required>
+                                    <div class="invalid-feedback" style="width: 100%;">
+                                        Your username is required.
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-9">
-                                <p class="text-muted mb-0">example@example.com</p>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       th:value="${user.email}" placeholder="you@example.com" required>
+                                <div class="invalid-feedback">
+                                    A valid email address. All emails from the system withll be sent to this address.
+                                    The email address is not made public and will only be used
+                                    if you wish to receive a new password or wish to receive certain notification.
+                                </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                                <p class="mb-0">Phone</p>
-                            </div>
-                            <div class="col-sm-9">
-                                <p class="text-muted mb-0">(097) 234-5678</p>
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                                <p class="mb-0">Mobile</p>
-                            </div>
-                            <div class="col-sm-9">
-                                <p class="text-muted mb-0">(098) 765-4321</p>
+
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" class="form-control" id="currentPassword"
+                                   name="password" th:value="${currentPassword}" >
+                            <div class="invalid-feedback">
+                                Enter your current password to change the email address or password.
                             </div>
                         </div>
-                        <hr>
+
                         <div class="row">
-                            <div class="col-sm-3">
-                                <p class="mb-0">Address</p>
+                            <div class="form-group col-md-6 mb-3">
+                                <label for="txtNewPassword">New Password</label>&nbsp;<span
+                                    id="checkPasswordMatch" style="color: red;"></span> <input
+                                    type="password" class="form-control" id="txtNewPassword"
+                                    name="newPassword" />
                             </div>
-                            <div class="col-sm-9">
-                                <p class="text-muted mb-0">Bay Area, San Francisco, CA</p>
+
+                            <div class="form-group col-md-6 mb-3">
+                                <label for="txtConfirmPassword">Confirm Password</label><input
+                                    type="password" class="form-control" id="txtConfirmPassword" />
                             </div>
                         </div>
+
+                        <hr class="mb-4">
+                        <button id="updateUserInfoButton" type="submit"
+                                class="btn btn-primary btn-lg btn-block">Save All</button>
                     </form>
                 </div>
             </div>
     </div>
 </div>
 <div th:insert="fragments.html :: script"></div>
+<script th:src="@{~/js/scripts}"></script>
 </body>
 </html>

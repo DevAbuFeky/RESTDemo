@@ -27,10 +27,10 @@ public class ProfileController {
     @Autowired
     private UsersServices usersServices;
 
-    @GetMapping("index")
-    public String index(){
-        return "profile/index";
-    }
+//    @GetMapping("index")
+//    public String index(){
+//        return "profile/index";
+//    }
 
     @RequestMapping("/index")
     public String myProfile(Model model, Principal principal){
@@ -118,7 +118,7 @@ public class ProfileController {
 
 
     //update user info
-    @PutMapping( "/updateUserInfo")
+    @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
     public String updateUserInfo (@ModelAttribute("user") User user,
                                   @ModelAttribute("newPassword") String newPassword,
                                   Model model) throws Exception{
