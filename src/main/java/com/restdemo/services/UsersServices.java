@@ -7,6 +7,7 @@ import com.restdemo.domain.security.UserRole;
 import com.restdemo.repo.PasswordResetTokenRepository;
 import com.restdemo.repo.RoleRepository;
 import com.restdemo.repo.UsersRepo;
+import com.restdemo.services.principal.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,12 +95,13 @@ public class UsersServices {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = usersRepo.findByUsername(username);
+        UserPrincipal userPrincipal = new UserPrincipal(user);
 
         if(null == user) {
             throw new UsernameNotFoundException("Username not found");
         }
 
-        return user;
+        return userPrincipal;
     }
 
 }

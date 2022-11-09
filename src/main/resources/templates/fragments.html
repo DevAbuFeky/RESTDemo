@@ -13,7 +13,7 @@
     <script th:src="@{~/font-awesome/js/all.js}"></script>
 </head>
 <body>
-<div th:fragment="nav">
+<div th:fragment="nav" style="display: revert">
     <nav id="sidebar">
         <div class="sidebar-header">
             <a th:href="@{~/index}" style="text-align: center;">
@@ -26,13 +26,14 @@
                 <img th:src="@{~/images/find_user.png}" class="user-image img-responsive">
             </li>
             <br>
+<!--            <li sec:authorize="isAuthenticated()">-->
             <li>
                 <a th:href="@{~/profile/index}" style="text-align: center;"><i class="fa-solid fa-user"></i> Profile</a>
             </li>
-            <li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')">
                 <a th:href="@{~/admin/index}" style="text-align: center;"><i class="fa-sharp fa-solid fa-user-tie"></i> Admin</a>
             </li>
-            <li>
+            <li sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')">
                 <a th:href="@{~/management/index}" style="text-align: center;"><i class="fa-solid fa-user-gear"></i> Management</a>
             </li>
 
@@ -41,7 +42,7 @@
                    class="dropdown-toggle" style="text-align: center;"><i class="fas fa-user-shield"></i> Security</a>
                 <ul class="collapse list-unstyled" id="securitySubmenu" style="text-align: center;">
                     <li>
-                        <a th:href="@{~/groups/index}">Roles</a>
+                        <a th:href="@{~/users/role}">Roles</a>
                     </li>
                     <li>
                         <a th:href="@{~/users/index}">Users</a>
@@ -55,6 +56,10 @@
 
             <li>
                 <a th:href="@{~/contact}" style="text-align: center;"><i class="fas fa-file-signature"></i> Contact Us</a>
+            </li>
+            <li form-method="post" th:action="@{/logout}">
+                <a sec:authorize="isAuthenticated()" style="text-align: center;" type="submit" th:href="@{/logout}">Logout</a>
+                <a sec:authorize="isAnonymous()" th:href="@{~/login}" style="text-align: center;" type="submit">Login</a>
             </li>
         </ul>
     </nav>

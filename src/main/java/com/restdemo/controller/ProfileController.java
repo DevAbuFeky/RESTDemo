@@ -27,11 +27,6 @@ public class ProfileController {
     @Autowired
     private UsersServices usersServices;
 
-//    @GetMapping("index")
-//    public String index(){
-//        return "profile/index";
-//    }
-
     @RequestMapping("/index")
     public String myProfile(Model model, Principal principal){
 

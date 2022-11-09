@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"><html>
+<head th:insert="fragments.html :: headerfiles"></head>
+<body>
+<!-- sidebar -->
+<div class="wrapper">
+  <div th:insert="fragments.html :: nav"></div>
+  <!-- Content -->
+  <div id="content">
+    <!-- sidebar btn -->
+    <nav class="navbar navbar-expend-lg navbar-light bg-light">
+      <div class="container-fluid row">
+        <button type="button" id="sidebarCollapse" class="btn btn-info">
+          <i class="fa fa-align-left"></i>
+        </button>
+        <a th:href="@{~/profile/index}" type="button" id="sidebarCollapse" class="btn btn-info">
+          <i class="fa fa-user"></i>
+        </a>
+      </div>
+    </nav>
+    <br><br>
+    <!-- Content -->
+
+    <!-- Modal -->
+    <div class="container">
+      <div class="header-panel">
+        <h5 class="title" style="text-align: center;">ِAdd/Update User</h5>
+      </div>
+      <br><br>
+      <form th:action="@{/users/addRole}" method="post" th:object="${role}">
+        <form>
+<!--          <input type="hidden" name="id" th:field="*{id}">-->
+          <div class="form-group">
+            <div class="row">
+              <div class="col">
+                <label>Code</label>
+                <input type="text" class="form-control" required
+                       name="firstName" id="firstName" placeholder="firstName">
+              </div>
+              <div class="col">
+                <label>Name</label>
+                <input type="text" class="form-control" required
+                       name="email" id="email" placeholder="email">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <!--                    <textarea class="form-control"  th:field="*{description}" name="description" id="description" rows="3"></textarea>-->
+            <textarea class="form-control"
+                      name="description" id="htmeditor"></textarea>
+            <!--                              th:field="*{description}"></textarea>-->
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+          <a th:href="@{/users/index}" class="btn btn-secondary">Close</a>
+        </form>
+    </div>
+
+  </div>
+
+</div>
+<div th:insert="fragments.html :: script"></div>
+</body>
+
+</html>
