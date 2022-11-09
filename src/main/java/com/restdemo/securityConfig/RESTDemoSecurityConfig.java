@@ -43,8 +43,6 @@ public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
         return daoAuthenticationProvider;
     }
 
-
-
 //    private static final String[] PUBLIC_MATCHERS = {
 //            "/css/**",
 //            "/js/**",
