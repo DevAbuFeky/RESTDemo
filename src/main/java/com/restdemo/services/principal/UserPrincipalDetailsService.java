@@ -31,9 +31,9 @@ public class UserPrincipalDetailsService implements UserDetailsService {
         return userPrincipal;
     }
 
-    public Role loadRoleName(String roleName){
-        Role role = roleRepository.findByName(roleName);
-
-        return role;
-    }
+//    public Role loadRoleName(String roleName){
+//        Role role = roleRepository.findByName(roleName);
+//
+//        return role;
+//    }
 }

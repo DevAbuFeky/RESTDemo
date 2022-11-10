@@ -3,7 +3,6 @@ package com.restdemo.controller;
 import com.restdemo.domain.User;
 import com.restdemo.domain.security.PasswordResetToken;
 import com.restdemo.domain.security.Role;
-import com.restdemo.domain.security.UserRole;
 import com.restdemo.securityConfig.SecurityUtility;
 import com.restdemo.services.UsersServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +72,9 @@ public class ProfileController {
         Role role = new Role();
         role.setRoleId(2);
         role.setName("ROLE_USER");
-        Set<UserRole> userRoles = new HashSet<>();
-        userRoles.add(new UserRole(user,role));
-        usersServices.createUser(user, userRoles);
+        Set<Role> roles = new HashSet<>();
+        roles.add(new Role());
+        usersServices.save(user);
 
         String token = UUID.randomUUID().toString();
         usersServices.createPasswordResetTokenForUser(user, token);

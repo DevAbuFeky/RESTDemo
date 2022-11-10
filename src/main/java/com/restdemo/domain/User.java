@@ -1,46 +1,45 @@
 package com.restdemo.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.restdemo.domain.security.UserRole;
+import com.restdemo.domain.security.Role;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
 @Setter
+@Data
 @Table(name = "user")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false, updatable = false)
+    @Column(name = "user_id", nullable = false, updatable = false)
     private int id;
     private String username;
     private String password;
     private String firstName;
     private String lastName;
 
-    @Column(name = "email", nullable = false, updatable = false)
+    @Column(name = "email")
+//            , nullable = false, updatable = false)
     private String email;
     private String phone;
+
     private boolean active = true;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
-    private Set<UserRole> userRole = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
+    @JoinTable(name = "roles_user",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<Role> roles = new HashSet<>();
 
     public User() {}
 
-//    public List<String> getRoleList(){
-//        if(this.roles.length() > 0){
-//            return Arrays.asList(this.roles.split(","));
-//        }
-//        return new ArrayList<>();
-//    }
 
     public User(String username, String password){
         this.username = username;

@@ -11,7 +11,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-//@Data
+@Data
 @Table(name = "role")
 public class Role {
 
@@ -20,7 +20,7 @@ public class Role {
     private int roleId;
     private String name;
 
-    @OneToMany(mappedBy = "role", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
-    private Set<UserRole> userRoles = new HashSet<>();
+//    @OneToMany(mappedBy = "role", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+//    private Set<UserRole> userRoles = new HashSet<>();
 }
 

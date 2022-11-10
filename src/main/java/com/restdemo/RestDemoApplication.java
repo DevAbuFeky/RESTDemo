@@ -2,7 +2,6 @@ package com.restdemo;
 
 import com.restdemo.domain.User;
 import com.restdemo.domain.security.Role;
-import com.restdemo.domain.security.UserRole;
 import com.restdemo.securityConfig.SecurityUtility;
 import com.restdemo.services.UsersServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +30,12 @@ public class RestDemoApplication implements CommandLineRunner {
         user1.setUsername("admin");
         user1.setPassword(SecurityUtility.passwordEncoder().encode("password"));
         user1.setEmail("admin@gmail.com");
-        Set<UserRole> userRoles = new HashSet<>();
+        Set<Role> roles = new HashSet<>();
         Role role1 = new Role();
         role1.setRoleId(1);
         role1.setName("ROLE_ADMIN");
-        userRoles.add(new UserRole(user1, role1));
+        roles.add(role1);
 
-        usersServices.createUser(user1,userRoles);
+        usersServices.save(user1);
     }
 }

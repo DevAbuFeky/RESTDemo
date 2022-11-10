@@ -3,7 +3,7 @@ package com.restdemo.services;
 
 import com.restdemo.domain.User;
 import com.restdemo.domain.security.PasswordResetToken;
-import com.restdemo.domain.security.UserRole;
+import com.restdemo.domain.security.Role;
 import com.restdemo.repo.PasswordResetTokenRepository;
 import com.restdemo.repo.RoleRepository;
 import com.restdemo.repo.UsersRepo;
@@ -70,17 +70,17 @@ public class UsersServices {
     }
 
     @Transactional
-    public User createUser(User user, Set<UserRole> userRoles) {
+    public User createUser(User user, Set<Role> roles) {
         User localUser = usersRepo.findByUsername(user.getUsername());
 
         if(localUser != null) {
             LOG.info("user {} already exists. Nothing will be done", user.getUsername());
         }else {
-            for (UserRole ur : userRoles){
-                roleRepository.save(ur.getRole());
+            for (Role role : roles){
+                roleRepository.save(role);
             }
 
-            user.getUserRole().addAll(userRoles);
+            user.getRoles().addAll(roles);
 
             localUser = usersRepo.save(user);
         }

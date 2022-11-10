@@ -1,26 +1,14 @@
 package com.restdemo.controller;
 
 import com.restdemo.domain.User;
-import com.restdemo.domain.security.PasswordResetToken;
-import com.restdemo.domain.security.Role;
-import com.restdemo.domain.security.UserRole;
-import com.restdemo.exceptionhandle.ControlExceptionHandler;
-import com.restdemo.securityConfig.SecurityUtility;
 import com.restdemo.services.UsersServices;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 //@RestController
 @Controller
