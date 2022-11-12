@@ -1,74 +1,71 @@
 package com.restdemo.securityConfig.JWT;
 
 import com.auth0.jwt.JWT;
-import com.restdemo.domain.User;
-import com.restdemo.repo.UsersRepo;
-import com.restdemo.services.principal.UserPrincipal;
-import org.springframework.security.authentication.AuthenticationManager;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+import static java.util.Arrays.stream;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-
-    private UsersRepo usersRepo;
-
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UsersRepo usersRepo) {
-        super(authenticationManager);
-        this.usersRepo = usersRepo;
-    }
-
+@Slf4j
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // Read the Authorization header, where the JWT token should be
-        String header = request.getHeader(JwtProperties.HEADER_STRING);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        if (request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh/**")){
+            filterChain.doFilter(request,response);
+        }else {
+            String authorizationHeader = request.getHeader(AUTHORIZATION);
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
+                try {
+                    String token = authorizationHeader.substring("Bearer ".length());
+                    Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+                    JWTVerifier verifier = JWT.require(algorithm).build();
+                    DecodedJWT decodedJWT = verifier.verify(token);
+                    String username = decodedJWT.getSubject();
+                    //same key in jwt authentication filter class withClaim("roles", .... etc)
+                    String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    stream(roles).forEach(role -> {
+                        authorities.add(new SimpleGrantedAuthority(role));
+                    });
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(username,null,authorities);
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    filterChain.doFilter(request,response);
+                }catch (Exception exception){
+                    log.info("Error log-in: {}", exception.getMessage());
+                    response.setHeader("error",exception.getMessage());
+                    response.setStatus(FORBIDDEN.value());
+//                    response.sendError(FORBIDDEN.value());
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error_message", exception.getMessage());
+                    response.setContentType(APPLICATION_JSON_VALUE);
+                    new ObjectMapper().writeValue(response.getOutputStream(), error);
+                }
 
-        // If header does not contain BEARER or is null delegate to Spring impl and exit
-        if (header == null || !header.startsWith(JwtProperties.TOKEN_PREFIX)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // If header is present, try grab user principal from database and perform authorization
-        Authentication authentication = getUsernamePasswordAuthentication(request);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Continue filter execution
-        chain.doFilter(request, response);
-
-    }
-
-    private Authentication getUsernamePasswordAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(JwtProperties.HEADER_STRING)
-                .replace(JwtProperties.TOKEN_PREFIX,"");
-
-        if (token != null) {
-            // parse the token and validate it
-            String userName = JWT.require(HMAC512(JwtProperties.SECRET.getBytes()))
-                    .build()
-                    .verify(token)
-                    .getSubject();
-
-            // Search in the DB if we find the user by token subject (username)
-            // If so, then grab user details and create spring auth token using username, pass, authorities/roles
-            if (userName != null) {
-                User user = usersRepo.findByUsername(userName);
-                UserPrincipal userPrincipal = new UserPrincipal(user);
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userName, null, userPrincipal.getAuthorities());
-                return auth;
+            }else {
+                filterChain.doFilter(request,response);
             }
-            return null;
         }
-        return null;
     }
-
 }

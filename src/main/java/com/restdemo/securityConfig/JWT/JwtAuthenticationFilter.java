@@ -1,14 +1,15 @@
 package com.restdemo.securityConfig.JWT;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.restdemo.domain.LoginViewModel;
-import com.restdemo.domain.User;
-import com.restdemo.securityConfig.JWT.JwtProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -16,58 +17,67 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private AuthenticationManager authenticationManager;
+
+    private final AuthenticationManager authenticationManager;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
-    /* Trigger when we issue POST request to /login
-    We also need to pass in {"username":"", "password":""} in the request body
-     */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+//        if using api
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        log.info("Username is : {}", username);
+        log.info("Password is : {}", password);
 
-        // Grab credentials and map them to login viewmodel
-        LoginViewModel credentials = null;
-        try {
-            credentials = new ObjectMapper().readValue(request.getInputStream(), LoginViewModel.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,password);
 
-        // Create login token
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                credentials.getUserName(),
-                credentials.getPassword(),
-                new ArrayList<>());
-
-        // Authenticate user
-        Authentication auth = authenticationManager.authenticate(authenticationToken);
-
-        return auth;
-
+        return authenticationManager.authenticate(authenticationToken);
     }
 
+    //Generate token if user isAuthenticated
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response
+            , FilterChain chain, Authentication authentication) throws IOException, ServletException {
 
-        // Grab principal
-        User user = (User) authResult.getPrincipal();
-
-        // Create JWT Token
-        String token = JWT.create()
+//        using api
+//        access token and refresh token for user
+//        User class form UserDetails
+        User user = (User) authentication.getPrincipal();
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        String access_token = JWT.create()
+                //we pass something specific and unique for user
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
-                .sign(HMAC512(JwtProperties.SECRET.getBytes()));
+                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+                .withIssuer(request.getRequestURI().toString())
+                .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining()))
+                .sign(algorithm);
 
-        // Add token in response
-        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX +  token);
+        String refresh_token = JWT.create()
+                //we pass something specific and unique for user
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+                .withIssuer(request.getRequestURI().toString())
+                .sign(algorithm);
+//        we can check access and refresh tokens for user after signing
+        response.setHeader("access_token", access_token);
+        response.setHeader("refresh_token",refresh_token);
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("access_token", access_token);
+        tokens.put("refresh_token",refresh_token);
+        response.setContentType(APPLICATION_JSON_VALUE);
+        new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+
     }
 }

@@ -1,12 +1,14 @@
 package com.restdemo.securityConfig;
 
-import com.restdemo.repo.UsersRepo;
 import com.restdemo.securityConfig.JWT.JwtAuthenticationFilter;
 import com.restdemo.securityConfig.JWT.JwtAuthorizationFilter;
 import com.restdemo.services.principal.UserPrincipalDetailsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,23 +16,27 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private UserPrincipalDetailsService userPrincipalDetailsService;
-    private UsersRepo usersRepo;
+    private final UserPrincipalDetailsService userPrincipalDetailsService;
 
-    public RESTDemoSecurityConfig(UserPrincipalDetailsService userPrincipalDetailsService, UsersRepo usersRepo) {
+    //Constructors
+    public RESTDemoSecurityConfig(UserPrincipalDetailsService userPrincipalDetailsService) {
         this.userPrincipalDetailsService = userPrincipalDetailsService;
-        this.usersRepo = usersRepo;
     }
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception{
+//        auth.userDetailsService(userPrincipalDetailsService).passwordEncoder(passwordEncoder());
         auth.authenticationProvider(authenticationProvider());
     }
 
@@ -43,67 +49,38 @@ public class RESTDemoSecurityConfig extends WebSecurityConfigurerAdapter {
         return daoAuthenticationProvider;
     }
 
-//    private static final String[] PUBLIC_MATCHERS = {
-//            "/css/**",
-//            "/js/**",
-//            "/image/**",
-//            "/",
-//            "/newUser",
-//            "/forgetPassword",
-//            "/login",
-//            "/fonts/**",
-//    };
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
-//        http.
-//                authorizeRequests().antMatchers(PUBLIC_MATCHERS).permitAll().anyRequest().authenticated();
-
-        http
-                // remove csrf and state in session because in jwt we do not need them
-                .csrf().disable().cors().disable()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-                // add jwt filters (1. authentication, 2. authorization)
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), this.usersRepo))
-                .authorizeRequests()
-                // configure access rules
-                .antMatchers("/index.html").permitAll()
-                .antMatchers("/profile/**").authenticated()
-                .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/management/**").hasAnyRole("ADMIN", "MANAGER")
-                .antMatchers("/users/**").authenticated()
-                .and()
-                .formLogin()
-                .loginProcessingUrl("/signin")
-                .loginPage("/login").permitAll()
-                .usernameParameter("txtUsername")
-                .passwordParameter("txtPassword")
-                .and()
-                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login")
-                .and()
-                .rememberMe().tokenValiditySeconds(2592000).key("mySecret!").rememberMeParameter("checkRememberMe");
-
-
-//        http.
-//                csrf().disable().cors().disable()
-//                .formLogin().failureUrl("/login?error")/*.defaultSuccessUrl("/")*/.loginPage("/login").permitAll()
-//                .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                .logoutSuccessUrl("/?logout").deleteCookies("remember-me").permitAll()
-//                .and().rememberMe();
-
-    }
-
-    private BCryptPasswordEncoder passwordEncoder() {
-        return SecurityUtility.passwordEncoder();
-    }
-
+    //ConfigureGlobal
     @Autowired
     public void ConfigureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userPrincipalDetailsService).passwordEncoder(passwordEncoder());
     }
 
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManagerBean());
+        jwtAuthenticationFilter.setFilterProcessesUrl("/api/login");
 
+        // remove csrf and state in session because in jwt we do not need them
+        http.csrf().disable();
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        //adding filter
+        http.authorizeRequests().antMatchers( "/api/login/**", "/api/token/refresh/**").permitAll();
+        http.authorizeRequests().antMatchers(GET, "/api/users/**").hasAnyAuthority("ROLE_ADMIN");
+        http.authorizeRequests().antMatchers(GET, "/api/users/**").hasAnyAuthority("ROLE_USER");
+        http.authorizeRequests().antMatchers(POST, "/api/users/**").hasAnyAuthority("ROLE_ADMIN");
+        http.authorizeRequests().anyRequest().authenticated();
+        http.addFilter(jwtAuthenticationFilter);
+        http.addFilterBefore(new JwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception{
+        return super.authenticationManagerBean();
+    }
+
+    private BCryptPasswordEncoder passwordEncoder() {
+        return SecurityUtility.passwordEncoder();
+    }
 }
